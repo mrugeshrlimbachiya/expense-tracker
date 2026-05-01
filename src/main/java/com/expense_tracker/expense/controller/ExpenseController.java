@@ -25,32 +25,41 @@ public class ExpenseController {
 
         String userId = (String) request.getAttribute("userId");
 
-        String response = expenseService.createExpense(req, userId);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(expenseService.createExpense(req, userId));
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<ExpensePageResponse> getAllExpenses(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<ExpensePageResponse> getAllExpenses(
+            HttpServletRequest request,
+            Pageable pageable) {
+
         String userId = (String) request.getAttribute("userId");
+
         return ResponseEntity.ok(expenseService.getAllExpenses(pageable, userId));
     }
 
     @GetMapping("/getById/{expenseId}")
-    public ResponseEntity<Expense> getById(@PathVariable String expenseId) {
+    public ResponseEntity<Expense> getById(
+            HttpServletRequest request,
+            @PathVariable String expenseId) {
 
-        Expense expense = expenseService.getExpenseById(expenseId);
+        String userId = (String) request.getAttribute("userId");
 
-        return ResponseEntity.ok(expense);
+        return ResponseEntity.ok(
+                expenseService.getExpenseById(expenseId, userId)
+        );
     }
 
     @PutMapping("/{expenseId}")
     public ResponseEntity<String> updateExpense(
+            HttpServletRequest request,
             @PathVariable String expenseId,
             @RequestBody UpdateExpenseRequest req) {
 
-        String response = expenseService.updateExpense(expenseId, req);
+        String userId = (String) request.getAttribute("userId");
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                expenseService.updateExpense(expenseId, req, userId)
+        );
     }
 }

@@ -21,20 +21,19 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
 
-    public String createExpense(CreateExpenseRequest req, String username) {
+    public String createExpense(CreateExpenseRequest req, String userId) {
 
         Expense expense = Expense.builder()
                 .expenseName(req.expenseName)
                 .amount(req.amount)
                 .date(req.date)
                 .description(req.description)
-                .userId(username)
+                .userId(userId)
                 .build();
 
         expenseRepository.save(expense);
 
         return "Expense created successfully with ID: " + expense.getExpenseId();
-
     }
 
     public ExpensePageResponse getAllExpenses(Pageable pageable, String userId) {
@@ -66,20 +65,26 @@ public class ExpenseService {
         return response;
     }
 
-    public Expense getExpenseById(String expenseId) {
-
-        return expenseRepository.findByExpenseId(expenseId)
-                .orElseThrow(() -> new RuntimeException("Expense not found"));
-    }
-
-    public String updateExpense(String expenseId, UpdateExpenseRequest req) {
+    public Expense getExpenseById(String expenseId, String userId) {
 
         Expense expense = expenseRepository.findByExpenseId(expenseId)
                 .orElseThrow(() -> new RuntimeException("Expense not found"));
 
-        if(req.expenseName != null){
+        if (!expense.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        return expense;
+    }
+
+    public String updateExpense(String expenseId, UpdateExpenseRequest req, String userId) {
+
+        Expense expense = getExpenseById(expenseId, userId);
+
+        if (req.expenseName != null) {
             expense.setExpenseName(req.expenseName);
         }
+
         if (req.amount != null) {
             expense.setAmount(req.amount);
         }
